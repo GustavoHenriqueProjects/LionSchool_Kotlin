@@ -189,6 +189,21 @@ fun InterfaceStudents(typeCourse: String?) {
                                 selectedItem.value = item
                                 expandedState.value = false
 
+                                val call: Call<StudentList> = if (typeCourse == "DS") {
+                                    RetrofitFactory().getCharacterService().getStudentsDsByYear(selectedItem.value)
+                                } else {
+                                    RetrofitFactory().getCharacterService().getStudentsRdsByYear(selectedItem.value)
+                                }
+                                call.enqueue(object : Callback<StudentList> {
+                                    override fun onResponse(call: Call<StudentList>, response: Response<StudentList>) {
+                                        listStudent = response.body()?.alunos!!
+                                    }
+
+                                    override fun onFailure(call: Call<StudentList>, t: Throwable) {
+                                        // Tratar falha na requisição
+                                    }
+                                })
+
                                 Log.i("LionScholl", selectedItem.value)
                             }) {
                                 Text(text = item,
