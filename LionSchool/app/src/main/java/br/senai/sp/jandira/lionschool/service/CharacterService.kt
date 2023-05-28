@@ -15,4 +15,9 @@ interface CharacterService {
     @GET("alunos/curso")
     fun getStudentsByCourse(@Query("curso") curso:String): Call<StudentList>
 
+    @GET("alunos/status/ds")
+    fun getStudentsDsByStatus(@Query("status") status:String): Call<StudentList>
+
+    @GET("alunos/status/rds")
+    fun getStudentsRdsByStatus(@Query("status") status:String): Call<StudentList>
 }

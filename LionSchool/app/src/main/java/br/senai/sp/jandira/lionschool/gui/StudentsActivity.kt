@@ -59,15 +59,19 @@ fun InterfaceStudents(typeCourse: String?) {
 
     //Operador Elvis se for null recebe ds
     val typeCourse = typeCourse ?: "ds"
+    val items = if(typeCourse == "DS"){
+        remember { mutableStateListOf("2018", "2022", "2023", "2024") }
+    }else{
+        remember { mutableStateListOf("2020","2022","2021", "2023", "2024") }
+    }
 
-    val items = remember { mutableStateListOf("2018", "2019", "2020", "2021", "2020", "2021", "2022", "2023", "2024") }
     val selectedItem = remember { mutableStateOf(items.first()) }
     val expandedState = remember { mutableStateOf(false) }
     var listStudent by remember {
         mutableStateOf(listOf<Student>())
     }
 
-    val call = RetrofitFactory().getCharacterService().getStudentsByCourse(typeCourse.toString())
+    val call = RetrofitFactory().getCharacterService().getStudentsByCourse(typeCourse)
     call.enqueue(object : Callback<StudentList> {
         override fun onResponse(
             call: Call<StudentList>,
@@ -95,7 +99,22 @@ fun InterfaceStudents(typeCourse: String?) {
                     .background(color = Color(0XFF121214))
             ) {
                 Button(
-                    onClick = { /* Ação a ser executada quando o botão for clicado */ },
+                    onClick = {
+                        val call: Call<StudentList> = if (typeCourse == "DS") {
+                            RetrofitFactory().getCharacterService().getStudentsDsByStatus("cursando")
+                        } else {
+                            RetrofitFactory().getCharacterService().getStudentsRdsByStatus("cursando")
+                        }
+                        call.enqueue(object : Callback<StudentList> {
+                            override fun onResponse(call: Call<StudentList>, response: Response<StudentList>) {
+                                listStudent = response.body()?.alunos!!
+                            }
+
+                            override fun onFailure(call: Call<StudentList>, t: Throwable) {
+                                // Tratar falha na requisição
+                            }
+                        })
+                    },
                     modifier = Modifier
                         .weight(1f)
                         .padding(16.dp)
@@ -111,7 +130,23 @@ fun InterfaceStudents(typeCourse: String?) {
                     )
                 }
                 Button(
-                    onClick = { /* Ação a ser executada quando o botão for clicado */ },
+                    onClick = {
+                       val call: Call<StudentList> = if (typeCourse == "DS") {
+                        RetrofitFactory().getCharacterService().getStudentsDsByStatus("finalizado")
+                    } else {
+                        RetrofitFactory().getCharacterService().getStudentsRdsByStatus("finalizado")
+                    }
+                        call.enqueue(object : Callback<StudentList> {
+                            override fun onResponse(call: Call<StudentList>, response: Response<StudentList>) {
+                                listStudent = response.body()?.alunos!!
+                            }
+
+                            override fun onFailure(call: Call<StudentList>, t: Throwable) {
+                                // Tratar falha na requisição
+                            }
+                        })
+
+                    },
                     modifier = Modifier
                         .weight(1f)
                         .padding(16.dp)
