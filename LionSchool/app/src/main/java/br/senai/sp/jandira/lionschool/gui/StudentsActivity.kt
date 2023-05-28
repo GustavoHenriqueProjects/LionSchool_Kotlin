@@ -6,26 +6,35 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.senai.sp.jandira.lionschool.R
+import br.senai.sp.jandira.lionschool.model.Student
+import br.senai.sp.jandira.lionschool.model.StudentList
+import br.senai.sp.jandira.lionschool.service.RetrofitFactory
 import br.senai.sp.jandira.lionschool.theme.LionSchoolTheme
+import coil.compose.AsyncImage
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class StudentsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,7 +45,9 @@ class StudentsActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    InterfaceStudents()
+
+                    val typeCourse = intent.getStringExtra("type_course")
+                    InterfaceStudents(typeCourse)
                 }
             }
         }
@@ -44,10 +55,31 @@ class StudentsActivity : ComponentActivity() {
 }
 
 @Composable
-fun InterfaceStudents() {
+fun InterfaceStudents(typeCourse: String?) {
+
+    //Operador Elvis se for null recebe ds
+    val typeCourse = typeCourse ?: "ds"
+
     val items = remember { mutableStateListOf("2018", "2019", "2020", "2021", "2020", "2021", "2022", "2023", "2024") }
     val selectedItem = remember { mutableStateOf(items.first()) }
     val expandedState = remember { mutableStateOf(false) }
+    var listStudent by remember {
+        mutableStateOf(listOf<Student>())
+    }
+
+    val call = RetrofitFactory().getCharacterService().getStudentsByCourse(typeCourse.toString())
+    call.enqueue(object : Callback<StudentList> {
+        override fun onResponse(
+            call: Call<StudentList>,
+            response: Response<StudentList>
+        ){
+            listStudent = response.body()!!.alunos
+        }
+
+        override fun onFailure(call: Call<StudentList>, t: Throwable) {
+
+        }
+    })
 
     Column(
         modifier = Modifier
@@ -124,7 +156,8 @@ fun InterfaceStudents() {
 
                                 Log.i("LionScholl", selectedItem.value)
                             }) {
-                                Text(text = item, style = MaterialTheme.typography.body1)
+                                Text(text = item,
+                                    style = MaterialTheme.typography.body1)
                             }
                         }
                     }
@@ -137,41 +170,46 @@ fun InterfaceStudents() {
                 .padding(top = 10.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Card(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .width(190.dp)
-                    .height(270.dp),
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                Box(
-                    modifier = Modifier
-                    .background(color = Color.Black)) {
-                        Image(
-                            painter = painterResource(id = R.drawable.background_students),
-                            contentDescription = "",
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.FillBounds
-                        )
-                    Column(
+            LazyColumn(){
+                items(listStudent){
+                    Card(
                         modifier = Modifier
-                            .fillMaxSize(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.SpaceAround
+                            .padding(16.dp)
+                            .width(190.dp)
+                            .height(270.dp),
+                        shape = RoundedCornerShape(8.dp)
                     ) {
-                        // Conteúdo adicional do card
-                        Image(
-                            painter = painterResource(id = R.drawable.student),
-                            contentDescription = "")
+                        Box(
+                            modifier = Modifier
+                                .background(color = Color.Black)) {
+                            Image(
+                                painter = painterResource(id = R.drawable.background_students),
+                                contentDescription = "",
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.FillBounds
+                            )
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize(),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.SpaceAround
+                            ) {
+                                // Conteúdo adicional do card
+                                AsyncImage(
+                                    model = it.foto,
+                                    contentDescription = "",
+                                    modifier = Modifier.size(width = 120.dp, height = 120.dp)
+                                )
 
-                        Text(
-                            text = "Título",
-                            modifier = Modifier.padding(16.dp),
-                            style = TextStyle(
-                                color = Color.White,
-                                fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold)
-                        )
+                                Text(
+                                    text = it.nome.uppercase(),
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.Black,
+                                    modifier = Modifier.padding(16.dp),
+                                )
+                            }
+                        }
                     }
                 }
             }
