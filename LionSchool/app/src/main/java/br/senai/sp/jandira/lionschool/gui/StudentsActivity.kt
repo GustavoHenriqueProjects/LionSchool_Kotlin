@@ -1,7 +1,6 @@
 package br.senai.sp.jandira.lionschool.gui
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -71,6 +70,15 @@ fun InterfaceStudents(typeCourse: String?) {
         mutableStateOf(listOf<Student>())
     }
 
+    var listStudentYear by remember {
+        mutableStateOf(listOf<Student>())
+    }
+
+    //Verifica qual list var ser usado
+    var status by remember {
+        mutableStateOf(true)
+    }
+
     val call = RetrofitFactory().getCharacterService().getStudentsByCourse(typeCourse)
     call.enqueue(object : Callback<StudentList> {
         override fun onResponse(
@@ -107,6 +115,7 @@ fun InterfaceStudents(typeCourse: String?) {
                         }
                         call.enqueue(object : Callback<StudentList> {
                             override fun onResponse(call: Call<StudentList>, response: Response<StudentList>) {
+                                status = true
                                 listStudent = response.body()?.alunos!!
                             }
 
@@ -138,6 +147,7 @@ fun InterfaceStudents(typeCourse: String?) {
                     }
                         call.enqueue(object : Callback<StudentList> {
                             override fun onResponse(call: Call<StudentList>, response: Response<StudentList>) {
+                                status = true
                                 listStudent = response.body()?.alunos!!
                             }
 
@@ -196,7 +206,8 @@ fun InterfaceStudents(typeCourse: String?) {
                                 }
                                 call.enqueue(object : Callback<StudentList> {
                                     override fun onResponse(call: Call<StudentList>, response: Response<StudentList>) {
-                                        listStudent = response.body()?.alunos!!
+                                       status = false
+                                        listStudentYear = response.body()?.alunos!!
                                     }
 
                                     override fun onFailure(call: Call<StudentList>, t: Throwable) {
@@ -204,10 +215,15 @@ fun InterfaceStudents(typeCourse: String?) {
                                     }
                                 })
 
-                                Log.i("LionScholl", selectedItem.value)
                             }) {
-                                Text(text = item,
-                                    style = MaterialTheme.typography.body1)
+                                Text(
+                                    text = item,
+                                    modifier = Modifier.padding(top = 50.dp),
+                                    fontSize = 70.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0XFFE8E147) ,
+                                    style = MaterialTheme.typography.body1
+                                )
                             }
                         }
                     }
@@ -221,7 +237,7 @@ fun InterfaceStudents(typeCourse: String?) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             LazyColumn(){
-                items(listStudent){
+                items(if (status) listStudent else listStudentYear){ it ->
                     Card(
                         modifier = Modifier
                             .padding(16.dp)
