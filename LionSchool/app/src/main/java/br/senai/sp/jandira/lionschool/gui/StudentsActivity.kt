@@ -1,10 +1,12 @@
 package br.senai.sp.jandira.lionschool.gui
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -20,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -93,6 +96,8 @@ fun InterfaceStudents(typeCourse: String?) {
         }
     })
 
+    val context = LocalContext.current
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -140,11 +145,11 @@ fun InterfaceStudents(typeCourse: String?) {
                 }
                 Button(
                     onClick = {
-                       val call: Call<StudentList> = if (typeCourse == "DS") {
-                        RetrofitFactory().getCharacterService().getStudentsDsByStatus("finalizado")
-                    } else {
-                        RetrofitFactory().getCharacterService().getStudentsRdsByStatus("finalizado")
-                    }
+                        val call: Call<StudentList> = if (typeCourse == "DS") {
+                            RetrofitFactory().getCharacterService().getStudentsDsByStatus("finalizado")
+                        } else {
+                            RetrofitFactory().getCharacterService().getStudentsRdsByStatus("finalizado")
+                        }
                         call.enqueue(object : Callback<StudentList> {
                             override fun onResponse(call: Call<StudentList>, response: Response<StudentList>) {
                                 status = true
@@ -206,7 +211,7 @@ fun InterfaceStudents(typeCourse: String?) {
                                 }
                                 call.enqueue(object : Callback<StudentList> {
                                     override fun onResponse(call: Call<StudentList>, response: Response<StudentList>) {
-                                       status = false
+                                        status = false
                                         listStudentYear = response.body()?.alunos!!
                                     }
 
@@ -218,8 +223,8 @@ fun InterfaceStudents(typeCourse: String?) {
                             }) {
                                 Text(
                                     text = item,
-                                    modifier = Modifier.padding(top = 50.dp),
-                                    fontSize = 70.sp,
+                                    modifier = Modifier.padding(top = 30.dp),
+                                    fontSize = 40.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color(0XFFE8E147) ,
                                     style = MaterialTheme.typography.body1
@@ -242,7 +247,17 @@ fun InterfaceStudents(typeCourse: String?) {
                         modifier = Modifier
                             .padding(16.dp)
                             .width(190.dp)
-                            .height(270.dp),
+                            .height(270.dp)
+                            .clickable {
+                                val openStudentGrades =
+                                    Intent(context, StudentGradesActivity::class.java)
+                                openStudentGrades
+                                    .putExtra("name_student", it.nome)
+                                    .putExtra("photo_student", it.foto)
+                                    .putExtra("sexo", it.sexo)
+                                    .putExtra("registration", it.matricula)
+                                context.startActivity(openStudentGrades)
+                            },
                         shape = RoundedCornerShape(8.dp)
                     ) {
                         Box(
@@ -254,6 +269,7 @@ fun InterfaceStudents(typeCourse: String?) {
                                 modifier = Modifier.fillMaxSize(),
                                 contentScale = ContentScale.FillBounds
                             )
+
                             Column(
                                 modifier = Modifier
                                     .fillMaxSize(),
