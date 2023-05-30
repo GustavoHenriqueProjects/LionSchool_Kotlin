@@ -172,7 +172,6 @@ fun InterfaceHome(){
                             .clickable {
                                 val openStudentsActivity =
                                     Intent(context, StudentsActivity::class.java)
-                                    context.startActivity(openStudentsActivity)
                                     openStudentsActivity.putExtra("type_course", it.sigla)
                                     context.startActivity(openStudentsActivity)
                             },
