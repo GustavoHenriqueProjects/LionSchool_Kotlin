@@ -9,12 +9,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
@@ -69,7 +71,8 @@ fun InterfaceGradesStudent(nameStudent: String?, photoStudent: String?, registra
             .background(color = Color.Black)
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .background(color = Color(0XFF121214)),
             horizontalArrangement = Arrangement.Center
         ) {
@@ -170,31 +173,70 @@ fun InterfaceGradesStudent(nameStudent: String?, photoStudent: String?, registra
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 10.dp),
+                        .padding(top = 20.dp),
                     horizontalArrangement = Arrangement.SpaceAround
                 ) {
-                    Row() {
+                    Row(
+                        horizontalArrangement = Arrangement.Center
+                    ) {
                         Text(
                             text = stringResource(id = R.string.status_activity_student_grades_approved),
-                            fontSize = 13.sp,
+                            fontSize = 17.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White
                         )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Box(
+                            modifier = Modifier
+                                .size(
+                                    width = 20.dp,
+                                    height = 20.dp
+                                )
+                                .background(
+                                    Color(0XFFAEDCB3)
+                                )
+                        )
                     }
-                    Row() {
+                    Row(
+                        horizontalArrangement = Arrangement.Center
+                    ) {
                         Text(
                             text = stringResource(id = R.string.status_activity_student_grades_disapproved),
-                            fontSize = 13.sp,
+                            fontSize = 17.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White
                         )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Box(
+                            modifier = Modifier
+                                .size(
+                                    width = 20.dp,
+                                    height = 20.dp
+                                )
+                                .background(
+                                    Color(0XFFD27D77)
+                                )
+                        )
                     }
-                    Row() {
+                    Row(
+                        horizontalArrangement = Arrangement.Center
+                    ) {
                         Text(
                             text = stringResource(id = R.string.status_activity_student_grades_exam),
-                            fontSize = 13.sp,
+                            fontSize = 17.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Box(
+                            modifier = Modifier
+                                .size(
+                                    width = 20.dp,
+                                    height = 20.dp
+                                )
+                                .background(
+                                    Color(0XFFD6EA5C)
+                                )
                         )
                     }
                 }
