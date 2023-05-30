@@ -17,4 +17,9 @@
     <string name="contacts_activity_phone">(11) 4774-4700</string>
     <string name="contacts_activity_email">lionschool@gmail.com</string>
     <string name="contacts_activity_adress">Rua tcc, 211,  Centro, Jandira</string>
+    <string name="contacts_activity_title_social_media">Social Media</string>
+    <string name="contacts_activity_title_version">Version</string>
+    <string name="contacts_activity_version_number">13.3 (278579)</string>
+    <string name="contacts_activity_suport">Suport</string>
+    <string name="contacts_activity_copyright">Copyright 2023 LionSchool of jandira</string>
 </resources>
