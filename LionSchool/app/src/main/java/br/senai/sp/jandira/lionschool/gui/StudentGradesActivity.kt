@@ -1,10 +1,13 @@
 package br.senai.sp.jandira.lionschool.gui
 
 import android.os.Bundle
+import android.widget.HorizontalScrollView
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,13 +20,24 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -32,8 +46,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.senai.sp.jandira.lionschool.R
+import br.senai.sp.jandira.lionschool.model.DisciplineStudent
+import br.senai.sp.jandira.lionschool.model.GraphicStudent
+import br.senai.sp.jandira.lionschool.model.GraphicStudentList
+import br.senai.sp.jandira.lionschool.service.RetrofitFactory
 import br.senai.sp.jandira.lionschool.ui.theme.LionSchoolTheme
 import coil.compose.AsyncImage
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class StudentGradesActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,12 +79,37 @@ class StudentGradesActivity : ComponentActivity() {
 }
 
 @Composable
-fun InterfaceGradesStudent(nameStudent: String?, photoStudent: String?, registrationStudent: String?, sexo: String?){
+fun InterfaceGradesStudent(
+    nameStudent: String?,
+    photoStudent: String?,
+    registrationStudent: String?,
+    sexo: String?
+) {
 
-    val studentName = nameStudent?: ""
-    val photo = photoStudent?: ""
-    val registration = registrationStudent?: ""
-    val sexo = sexo?: ""
+    val studentName = nameStudent ?: ""
+    val photo = photoStudent ?: ""
+    val registration = registrationStudent ?: ""
+    val sexo = sexo ?: ""
+    var graphicStudentList by remember {
+        mutableStateOf(listOf<GraphicStudent>())
+    }
+
+    val call = RetrofitFactory().getCharacterService()
+        .getGradesStudentsByName(studentName)
+    call.enqueue(object : Callback<GraphicStudentList> {
+        override fun onResponse(
+            call: Call<GraphicStudentList>,
+            response: Response<GraphicStudentList>
+        ) {
+            graphicStudentList = response.body()!!.aluno
+        }
+
+        override fun onFailure(call: Call<GraphicStudentList>, t: Throwable) {
+
+        }
+    })
+
+    val scrool = rememberScrollState()
 
     Column(
         modifier = Modifier
@@ -91,10 +137,11 @@ fun InterfaceGradesStudent(nameStudent: String?, photoStudent: String?, registra
             modifier = Modifier
                 .fillMaxWidth()
         ) {
-            Card(modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth()
-                .height(200.dp),
+            Card(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth()
+                    .height(200.dp),
                 shape = RoundedCornerShape(33.dp)
             ) {
                 Box(
@@ -238,6 +285,90 @@ fun InterfaceGradesStudent(nameStudent: String?, photoStudent: String?, registra
                                     Color(0XFFD6EA5C)
                                 )
                         )
+                    }
+                }
+            }
+        }
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight()
+                .padding(30.dp)
+                .background(
+                    color = Color(0XFF3347B0)
+                )
+        ) {
+            items(graphicStudentList) { aluno ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(scrool),
+                    horizontalArrangement = Arrangement.SpaceAround,
+
+
+                    ) {
+
+                    aluno.disciplinas.forEach { carga ->
+                        Text(
+                            text = carga.carga,
+                            modifier = Modifier.padding(start = 30.dp, end = 4.dp),
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                        Spacer(modifier = Modifier.width(39.dp))
+                    }
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 5.dp)
+                        .horizontalScroll(scrool),
+                    horizontalArrangement = Arrangement.SpaceAround,
+                    verticalAlignment = Alignment.Bottom
+                ) {
+                    aluno.disciplinas.forEach { media ->
+                        val backgroundColumn = when {
+                            media.media.toInt() < 50 -> Color(0XFFD27D77)
+                            media.media.toInt() < 70 -> Color(0XFFD6EA5C)
+                            else -> Color(0XFFAEDCB3)
+
+                        }
+                        Column(
+                            modifier = Modifier
+                                .width(70.dp)
+                                .padding(start = 5.dp)
+                                .background(color = backgroundColumn)
+                                .height((media.media.toFloat() * 2).dp)
+
+                        ) {
+
+                        }
+                        Spacer(modifier = Modifier.width(33.dp))
+                    }
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(scrool),
+                    horizontalArrangement = Arrangement.SpaceAround,
+                    verticalAlignment = Alignment.Bottom
+                ) {
+                    aluno.disciplinas.forEach { sigla ->
+                        Box(
+                            modifier = Modifier
+                                .padding(start = 30.dp, top = 5.dp)
+                                .rotate(-45f)
+                        ) {
+                            Text(
+                                text = sigla.nome,
+                                modifier = Modifier.padding(top = 3.dp),
+                                fontSize = 19.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0XFF1BE930)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(36.dp))
                     }
                 }
             }
